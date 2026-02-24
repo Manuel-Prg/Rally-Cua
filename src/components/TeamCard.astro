@@ -1,0 +1,181 @@
+---
+// src/components/TeamCard.astro
+import { totalScore, getCurrentPhase, type Team } from '../lib/mockData';
+
+export interface Props {
+  team: Team;
+  rank: number;
+}
+
+const { team, rank } = Astro.props;
+
+const score = totalScore(team);
+const cp = getCurrentPhase(team);
+const isFirst = rank === 1;
+---
+
+<article
+  class:list={['team-card', { 'team-card--first': isFirst }]}
+  style={`--team-color: ${team.color};`}
+  data-team-id={team.id}
+  aria-label={`${team.name}, posición ${rank}, ${score} puntos`}
+>
+  <!-- Rank -->
+  <div class="rank" aria-hidden="true">
+    {isFirst ? '🏆' : rank}
+  </div>
+
+  <!-- Info -->
+  <div class="info">
+    <div class="team-name">{team.name}</div>
+    <div class="members">{team.members.join(' · ')}</div>
+  </div>
+
+  <!-- Phase progress dots -->
+  <div class="phase-block" aria-label="Progreso de fases">
+    <span class:list={['phase-tag', cp.phaseClass]}>{cp.label}</span>
+    <div class="phase-dots" aria-hidden="true">
+      {team.phases.map(p => (
+        <span class:list={['dot', p.status === 'done' ? 'done' : p.status === 'doing' ? 'active' : '']} />
+      ))}
+    </div>
+  </div>
+
+  <!-- Score -->
+  <div class="score-block">
+    <span class="score-value">{score}</span>
+    <span class="score-label">pts</span>
+  </div>
+</article>
+
+<style>
+  .team-card {
+    display: grid;
+    grid-template-columns: 56px 1fr auto auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 1.5rem;
+    background: rgba(61, 43, 31, 0.55);
+    border: 1px solid rgba(196, 163, 90, 0.12);
+    border-left: 4px solid var(--team-color);
+    backdrop-filter: blur(4px);
+    position: relative;
+    overflow: hidden;
+    animation: slide-in 0.45s ease both;
+  }
+
+  .team-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(255,255,255,0.025) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .team-card--first {
+    background: rgba(139, 105, 20, 0.18);
+    border-color: rgba(196, 163, 90, 0.35);
+    border-left-color: var(--team-color);
+  }
+
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(-18px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Rank */
+  .rank {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    color: rgba(196, 163, 90, 0.28);
+    text-align: center;
+    line-height: 1;
+  }
+  .team-card--first .rank { font-size: 2rem; color: var(--dirt); }
+
+  /* Info */
+  .team-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ash);
+  }
+  .members {
+    font-size: 0.75rem;
+    color: var(--fog);
+    opacity: 0.55;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Phase block */
+  .phase-block { text-align: right; }
+
+  .phase-tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.18rem 0.55rem;
+    border-radius: 2px;
+    display: inline-block;
+    margin-bottom: 0.35rem;
+    border: 1px solid;
+  }
+
+  .phase-tag.doing    { background: rgba(196,163,90,0.15); color: var(--dirt);       border-color: var(--dirt); }
+  .phase-tag.done     { background: rgba(74,92,58,0.25);   color: var(--moss-light); border-color: var(--moss-light); }
+  .phase-tag.waiting  { background: rgba(255,255,255,0.04); color: var(--fog); opacity: 0.45; border-color: rgba(255,255,255,0.1); }
+
+  .phase-dots {
+    display: flex;
+    gap: 4px;
+    justify-content: flex-end;
+  }
+
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 1px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .dot.done   { background: var(--moss); border-color: var(--moss-light); }
+  .dot.active { background: var(--dirt); border-color: var(--dirt); box-shadow: 0 0 6px var(--dirt); animation: dot-pulse 1.5s infinite; }
+
+  @keyframes dot-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.45; }
+  }
+
+  /* Score */
+  .score-block { text-align: right; }
+
+  .score-value {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.6rem;
+    color: var(--sand);
+    line-height: 1;
+  }
+  .team-card--first .score-value { font-size: 3.2rem; color: var(--dirt); }
+
+  .score-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(196, 163, 90, 0.35);
+  }
+
+  @media (max-width: 600px) {
+    .team-card { grid-template-columns: 40px 1fr auto; }
+    .phase-block { display: none; }
+    .score-value { font-size: 2rem; }
+  }
+</style>
