@@ -2,86 +2,112 @@
 // src/layouts/BaseLayout.astro
 export interface Props {
   title: string;
-  activePage: 'scoreboard' | 'admin';
+  activePage: "scoreboard" | "admin";
 }
 
 const { title, activePage } = Astro.props;
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{title} — Rally de Competencia</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} — Rally de Competencia</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  </head>
+  <body>
+    <!-- ── NAVBAR ── -->
+    <header class="nav">
+      <div class="nav-logo">RALLY<span>X</span></div>
 
-  <!-- ── NAVBAR ── -->
-  <header class="nav">
-    <div class="nav-logo">RALLY<span>X</span></div>
+      <nav class="nav-tabs" aria-label="Navegación principal">
+        <a
+          href="/"
+          class:list={["nav-tab", { active: activePage === "scoreboard" }]}
+          aria-current={activePage === "scoreboard" ? "page" : undefined}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            style="margin-right:6px"
+          >
+            <rect x="18" y="3" width="4" height="18"></rect><rect
+              x="10"
+              y="8"
+              width="4"
+              height="13"></rect><rect x="2" y="13" width="4" height="8"></rect>
+          </svg>
+          Marcador
+        </a>
+        <a
+          href="/admin"
+          class:list={["nav-tab", { active: activePage === "admin" }]}
+          aria-current={activePage === "admin" ? "page" : undefined}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            style="margin-right:6px"
+          >
+            <circle cx="12" cy="12" r="3"></circle><path
+              d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"
+            ></path>
+          </svg>
+          Panel Admin
+        </a>
+      </nav>
 
-    <nav class="nav-tabs" aria-label="Navegación principal">
-      <a
-        href="/"
-        class:list={['nav-tab', { active: activePage === 'scoreboard' }]}
-        aria-current={activePage === 'scoreboard' ? 'page' : undefined}
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px">
-          <rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="2" y="13" width="4" height="8"/>
-        </svg>
-        Marcador
-      </a>
-      <a
-        href="/admin"
-        class:list={['nav-tab', { active: activePage === 'admin' }]}
-        aria-current={activePage === 'admin' ? 'page' : undefined}
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px">
-          <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
-        </svg>
-        Panel Admin
-      </a>
-    </nav>
+      <div class="live-badge">
+        <span class="live-dot" aria-hidden="true"></span>
+        En Vivo
+      </div>
+    </header>
 
-    <div class="live-badge">
-      <span class="live-dot" aria-hidden="true"></span>
-      En Vivo
-    </div>
-  </header>
-
-  <!-- ── PAGE CONTENT ── -->
-  <main>
-    <slot />
-  </main>
-
-</body>
+    <!-- ── PAGE CONTENT ── -->
+    <main>
+      <slot />
+    </main>
+  </body>
 </html>
 
 <style is:global>
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap');
+  @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap");
 
   :root {
-    --dirt:       #C4A35A;
-    --dirt-dark:  #8B6914;
-    --earth:      #3D2B1F;
-    --bark:       #2A1E15;
-    --moss:       #4A5C3A;
-    --moss-light: #6B7F55;
-    --rust:       #B84A1E;
-    --sand:       #E8D5A3;
-    --fog:        #D4C9B0;
-    --ash:        #F2EDE0;
-    --ink:        #1A1208;
+    --dirt: #c4a35a;
+    --dirt-dark: #8b6914;
+    --earth: #3d2b1f;
+    --bark: #2a1e15;
+    --moss: #4a5c3a;
+    --moss-light: #6b7f55;
+    --rust: #b84a1e;
+    --sand: #e8d5a3;
+    --fog: #d4c9b0;
+    --ash: #f2ede0;
+    --ink: #1a1208;
   }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
   body {
-    font-family: 'Barlow', sans-serif;
+    font-family: "Barlow", sans-serif;
     background: var(--bark);
     color: var(--ash);
     min-height: 100vh;
@@ -90,7 +116,7 @@ const { title, activePage } = Astro.props;
 
   /* Noise texture */
   body::before {
-    content: '';
+    content: "";
     position: fixed;
     inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
@@ -99,7 +125,10 @@ const { title, activePage } = Astro.props;
     opacity: 0.35;
   }
 
-  main { position: relative; z-index: 1; }
+  main {
+    position: relative;
+    z-index: 1;
+  }
 </style>
 
 <style>
@@ -118,14 +147,16 @@ const { title, activePage } = Astro.props;
   }
 
   .nav-logo {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: "Bebas Neue", sans-serif;
     font-size: 1.8rem;
     letter-spacing: 0.1em;
     color: var(--dirt);
     text-shadow: 0 0 20px rgba(196, 163, 90, 0.3);
     flex-shrink: 0;
   }
-  .nav-logo span { color: var(--rust); }
+  .nav-logo span {
+    color: var(--rust);
+  }
 
   .nav-tabs {
     display: flex;
@@ -134,7 +165,7 @@ const { title, activePage } = Astro.props;
   }
 
   .nav-tab {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: "Barlow Condensed", sans-serif;
     font-size: 0.85rem;
     font-weight: 700;
     letter-spacing: 0.15em;
@@ -147,16 +178,25 @@ const { title, activePage } = Astro.props;
     color: var(--fog);
     border-bottom: 3px solid transparent;
     margin-bottom: -3px;
-    transition: color 0.2s, background 0.2s;
+    transition:
+      color 0.2s,
+      background 0.2s;
   }
-  .nav-tab:hover { color: var(--sand); background: rgba(196, 163, 90, 0.05); }
-  .nav-tab.active { color: var(--dirt); border-bottom-color: var(--dirt); background: rgba(196, 163, 90, 0.08); }
+  .nav-tab:hover {
+    color: var(--sand);
+    background: rgba(196, 163, 90, 0.05);
+  }
+  .nav-tab.active {
+    color: var(--dirt);
+    border-bottom-color: var(--dirt);
+    background: rgba(196, 163, 90, 0.08);
+  }
 
   .live-badge {
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: "Barlow Condensed", sans-serif;
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -175,13 +215,27 @@ const { title, activePage } = Astro.props;
   }
 
   @keyframes blink {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50%       { opacity: 0.4; transform: scale(0.75); }
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.4;
+      transform: scale(0.75);
+    }
   }
 
   @media (max-width: 480px) {
-    .nav { padding: 0 1rem; }
-    .nav-tab { padding: 0 0.9rem; font-size: 0.75rem; }
-    .live-badge { display: none; }
+    .nav {
+      padding: 0 1rem;
+    }
+    .nav-tab {
+      padding: 0 0.9rem;
+      font-size: 0.75rem;
+    }
+    .live-badge {
+      display: none;
+    }
   }
 </style>
