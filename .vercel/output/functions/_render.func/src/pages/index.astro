@@ -1,0 +1,37 @@
+---
+// src/pages/index.astro — Marcador en vivo
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ScoreboardLive from "../components/ScoreboardLive";
+import { supabase } from "../db/supabase.js";
+
+// ── Fetch inicial server-side (SSR) ──────────────────────────────────────────
+const { data: rawTeams, error } = await supabase
+  .from("teams")
+  .select("id, name, color, members, scores(phase_id, status, points)")
+  .order("id");
+
+if (error) console.error("Error loading teams:", error);
+
+const initialTeams = (rawTeams ?? []).map((row: any) => ({
+  id: row.id,
+  name: row.name,
+  color: row.color,
+  members: Array.isArray(row.members) ? row.members : [],
+  phases: [1, 2, 3, 4, 5].map((phaseId) => {
+    const s = (row.scores ?? []).find((sc: any) => sc.phase_id === phaseId);
+    return {
+      phaseId,
+      status: s?.status ?? "pending",
+      points: s?.points ?? 0,
+    };
+  }),
+}));
+---
+
+<BaseLayout title="Marcador" activePage="scoreboard">
+  <!--
+    ScoreboardLive recibe los datos del SSR como prop inicial (hidratación rápida)
+    y luego se suscribe a Supabase Realtime para actualizaciones en vivo.
+  -->
+  <ScoreboardLive initialTeams={initialTeams} client:load />
+</BaseLayout>

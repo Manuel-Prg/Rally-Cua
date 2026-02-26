@@ -1,10 +1,23 @@
 import { createClient } from "@supabase/supabase-js";
 
-// Extraemos las variables usando Vite/Astro syntax
-const supabaseUrl = import.meta.env.SUPABASE_URL ?? process.env.SUPABASE_URL ?? "";
-const supabaseKey = import.meta.env.SUPABASE_KEY ?? process.env.SUPABASE_KEY ?? "";
+// Vite parsea import.meta.env en build time o dev time
+// Node SSR en Vercel usa process.env en runtime
+const getEnvVar = (nombre) => {
+    if (typeof process !== "undefined" && process.env && process.env[nombre]) {
+        return process.env[nombre];
+    }
+    if (typeof import.meta !== "undefined" && import.meta.env && import.meta.env[nombre]) {
+        return import.meta.env[nombre];
+    }
+    return "";
+};
 
-// Creamos un cliente dummy si no hay URL (evita crashes durante el build de Astro)
-export const supabase = supabaseUrl && supabaseKey
-    ? createClient(supabaseUrl, supabaseKey)
-    : { from: () => ({ select: () => ({ order: () => ({ data: [], error: null }) }) }) };
+const supabaseUrl = getEnvVar("SUPABASE_URL");
+const supabaseKey = getEnvVar("SUPABASE_KEY");
+
+// Creamos un cliente siempre para no romper los tipos de TS (Astro API routes)
+// Si estamos en build step y no hay vars, usamos valores dummy válidos sintácticamente
+const finalUrl = supabaseUrl || "https://dummy.supabase.co";
+const finalKey = supabaseKey || "dummy-key";
+
+export const supabase = createClient(finalUrl, finalKey);
