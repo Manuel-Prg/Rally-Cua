@@ -4,6 +4,8 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { PHASES, totalScore } from "../lib/mockData";
 import { supabase } from "../db/supabase.js";
 
+const MAX_TEAMS = 10;
+
 // ── Fetch teams + scores from Supabase ──────────────────────────
 let rawTeams: any[] = [];
 try {
@@ -31,8 +33,25 @@ const teams = (rawTeams ?? []).map((row: any) => ({
   }),
 }));
 
+// ── Fetch pending registrations ──────────────────────────────────
+let registrations: any[] = [];
+try {
+  const { data: regs, error: regErr } = await supabase
+    .from("registrations")
+    .select("id, team_name, representative, created_at")
+    .is("approved_at", null)
+    .order("created_at", { ascending: true });
+  if (!regErr && regs) {
+    registrations = regs;
+  }
+} catch (e) {
+  console.error("Fetch registrations error:", e);
+}
+
 // Serialize for client script
 const teamsJson = JSON.stringify(teams);
+const registrationsJson = JSON.stringify(registrations);
+const teamCount = teams.length;
 ---
 
 <BaseLayout title="Panel Admin" activePage="admin">
@@ -44,6 +63,15 @@ const teamsJson = JSON.stringify(teams);
         <h1 class="admin-title">Actualizar Marcador</h1>
       </div>
       <div class="header-actions">
+        <div
+          class="cupo-badge"
+          class:list={[{ "cupo-full": teamCount >= MAX_TEAMS }]}
+        >
+          <span class="cupo-num">{teamCount}</span>
+          <span class="cupo-sep">/</span>
+          <span class="cupo-max">{MAX_TEAMS}</span>
+          <span class="cupo-label">equipos</span>
+        </div>
         <button class="btn btn-export" id="btn-export">
           <svg
             width="14"
@@ -62,11 +90,53 @@ const teamsJson = JSON.stringify(teams);
           </svg>
           Exportar Excel
         </button>
-        <button class="btn btn-primary" id="btn-register">
-          + Registrar Equipo
-        </button>
       </div>
     </header>
+
+    <!-- ── INSCRIPCIONES PENDIENTES ── -->
+    <section class="pending-section" id="pending-section">
+      <h2 class="pending-title">Inscripciones Pendientes</h2>
+      <div id="pending-list">
+        {
+          registrations.length === 0 ? (
+            <p class="pending-empty">Sin inscripciones nuevas por revisar.</p>
+          ) : (
+            registrations.map((r) => (
+              <div
+                class="pending-card"
+                data-reg-id={r.id}
+                data-team-name={r.team_name}
+              >
+                <div class="pending-info">
+                  <span class="pending-team">{r.team_name}</span>
+                  <span class="pending-rep">Rep: {r.representative}</span>
+                  <span class="pending-date">
+                    {new Date(r.created_at).toLocaleDateString("es-MX", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+                <button
+                  class="btn btn-approve approve-btn"
+                  data-reg-id={r.id}
+                  data-team-name={r.team_name}
+                  disabled={teamCount >= MAX_TEAMS}
+                  title={
+                    teamCount >= MAX_TEAMS
+                      ? "Cupo lleno"
+                      : `Aprobar a ${r.team_name}`
+                  }
+                >
+                  {teamCount >= MAX_TEAMS ? "Cupo lleno" : "Aprobar →"}
+                </button>
+              </div>
+            ))
+          )
+        }
+      </div>
+    </section>
 
     <!-- ── PHASE FILTER ── -->
     <div class="filter-block">
@@ -113,62 +183,22 @@ const teamsJson = JSON.stringify(teams);
     </p>
   </div>
 
-  <!-- ── MODAL REGISTRAR EQUIPO ── -->
-  <div
-    class="modal-overlay"
-    id="modal-register"
-    aria-modal="true"
-    role="dialog"
-    aria-labelledby="modal-title"
-  >
-    <div class="modal">
-      <h2 class="modal-title" id="modal-title">Registrar Equipo</h2>
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label" for="input-name">Nombre del equipo</label>
-          <input
-            class="form-input"
-            id="input-name"
-            type="text"
-            placeholder="Ej. Los Relámpagos"
-            autocomplete="off"
-          />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="input-members"
-            >Miembros <small>(separados por coma)</small></label
-          >
-          <input
-            class="form-input"
-            id="input-members"
-            type="text"
-            placeholder="Ana, Carlos, Luis, María, Pedro"
-          />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="input-color">Color del equipo</label>
-          <input
-            class="form-input form-color"
-            id="input-color"
-            type="color"
-            value="#E8531A"
-          />
-        </div>
-      </div>
-      <div class="form-actions">
-        <button class="btn btn-ghost" id="btn-modal-cancel">Cancelar</button>
-        <button class="btn btn-primary" id="btn-modal-save">Registrar</button>
-      </div>
-    </div>
-  </div>
-
   <!-- ── TOAST ── -->
   <div class="toast-area" id="toast-area" aria-live="polite"></div>
 </BaseLayout>
 
-<script define:vars={{ teamsJson, PHASES }}>
+<script
+  define:vars={{
+    teamsJson,
+    registrationsJson,
+    PHASES,
+    initialTeamCount: teamCount,
+    MAX_TEAMS,
+  }}
+>
   // ── State from Supabase SSR ───────────────────────────────────────
   let teams = JSON.parse(teamsJson);
+  let currentTeamCount = initialTeamCount;
   let activePhaseFilter = "all";
 
   function totalScore(team) {
@@ -331,81 +361,84 @@ const teamsJson = JSON.stringify(teams);
     renderTable();
   });
 
-  // ── Register modal ────────────────────────────────────────────────
-  const modal = document.getElementById("modal-register");
+  // ── Approve registration ──────────────────────────────────────────
+  function attachApproveListeners() {
+    document.querySelectorAll(".approve-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const regId = btn.dataset.regId;
+        const teamName = btn.dataset.teamName;
 
-  document.getElementById("btn-register").addEventListener("click", () => {
-    modal.classList.add("open");
-    document.getElementById("input-name").focus();
-  });
+        btn.textContent = "Aprobando…";
+        btn.disabled = true;
 
-  document
-    .getElementById("btn-modal-cancel")
-    .addEventListener("click", () => modal.classList.remove("open"));
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) modal.classList.remove("open");
-  });
-
-  document
-    .getElementById("btn-modal-save")
-    .addEventListener("click", async () => {
-      const nameEl = document.getElementById("input-name");
-      const membersEl = document.getElementById("input-members");
-      const colorEl = document.getElementById("input-color");
-
-      const name = nameEl.value.trim();
-      if (!name) {
-        nameEl.focus();
-        return;
-      }
-
-      const members = membersEl.value
-        .split(",")
-        .map((m) => m.trim())
-        .filter(Boolean);
-      const saveBtn = document.getElementById("btn-modal-save");
-      saveBtn.textContent = "Guardando…";
-      saveBtn.disabled = true;
-
-      try {
-        const res = await fetch("/api/create-team", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nombre: name,
-            color: colorEl.value,
-            miembros: members,
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          showToast("Error: " + (data.error ?? "Intenta de nuevo"), "error");
-        } else {
-          // Add to local state
-          teams.push({
-            id: data.id,
-            name,
-            color: colorEl.value,
-            members,
-            phases: [1, 2, 3, 4, 5].map((id) => ({
-              phaseId: id,
-              status: "pending",
-              points: 0,
-            })),
+        try {
+          const res = await fetch("/api/approve-team", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ registration_id: regId }),
           });
-          modal.classList.remove("open");
-          nameEl.value = "";
-          membersEl.value = "";
-          renderTable();
-          showToast(`Equipo "${name}" registrado`);
-        }
-      } catch {
-        showToast("Error de red.", "error");
-      }
+          const data = await res.json();
 
-      saveBtn.textContent = "Registrar";
-      saveBtn.disabled = false;
+          if (!res.ok) {
+            showToast("Error: " + (data.error ?? "Intenta de nuevo"), "error");
+            btn.textContent = "Aprobar →";
+            btn.disabled = false;
+          } else {
+            // Add to scoreboard table state
+            teams.push({
+              id: data.team.id,
+              name: data.team.name,
+              color: data.team.color,
+              members: data.team.members ?? [],
+              phases: [1, 2, 3, 4, 5].map((id) => ({
+                phaseId: id,
+                status: "pending",
+                points: 0,
+              })),
+            });
+            currentTeamCount++;
+
+            // Remove card from pending list
+            const card = document.querySelector(
+              `.pending-card[data-reg-id="${regId}"]`,
+            );
+            if (card) card.remove();
+
+            // Show empty state if no more pending
+            const remaining = document.querySelectorAll(".pending-card").length;
+            if (remaining === 0) {
+              document.getElementById("pending-list").innerHTML =
+                '<p class="pending-empty">Sin inscripciones nuevas por revisar.</p>';
+            }
+
+            // Disable all remaining approve buttons if now at cap
+            if (currentTeamCount >= MAX_TEAMS) {
+              document.querySelectorAll(".approve-btn").forEach((b) => {
+                b.disabled = true;
+                b.textContent = "Cupo lleno";
+              });
+              // Update cupo badge
+              const numEl = document.querySelector(".cupo-num");
+              if (numEl) numEl.textContent = String(currentTeamCount);
+              document.querySelector(".cupo-badge")?.classList.add("cupo-full");
+            } else {
+              const numEl = document.querySelector(".cupo-num");
+              if (numEl) numEl.textContent = String(currentTeamCount);
+            }
+
+            renderTable();
+            showToast(`Equipo "${teamName}" aprobado y agregado al marcador`);
+          }
+        } catch {
+          showToast("Error de red.", "error");
+          btn.textContent = "Aprobar →";
+          btn.disabled = false;
+        }
+      });
     });
+  }
+
+  attachApproveListeners();
 
   // ── Export Excel ──────────────────────────────────────────────────
   document.getElementById("btn-export").addEventListener("click", async () => {
@@ -568,7 +601,118 @@ const teamsJson = JSON.stringify(teams);
     cursor: not-allowed;
   }
 
+  /* ── Cupo badge ── */
+  .cupo-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 0.4rem 0.9rem;
+    border-radius: 2px;
+    background: rgba(196, 163, 90, 0.1);
+    border: 1px solid rgba(196, 163, 90, 0.25);
+    color: var(--dirt);
+  }
+  .cupo-badge.cupo-full {
+    background: rgba(184, 74, 30, 0.12);
+    border-color: rgba(184, 74, 30, 0.4);
+    color: #e07b5f;
+  }
+  .cupo-sep,
+  .cupo-max {
+    opacity: 0.5;
+  }
+  .cupo-label {
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  /* ── Pending registrations ── */
+  .pending-section {
+    margin-bottom: 2rem;
+    padding: 1.2rem 1.4rem;
+    background: rgba(42, 30, 21, 0.45);
+    border: 1px solid rgba(196, 163, 90, 0.14);
+    border-radius: 4px;
+  }
+  .pending-title {
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--dirt);
+    margin-bottom: 0.9rem;
+  }
+  .pending-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .pending-card:last-child {
+    border-bottom: none;
+  }
+  .pending-info {
+    display: flex;
+    align-items: baseline;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  .pending-team {
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ash);
+  }
+  .pending-rep {
+    font-size: 0.82rem;
+    color: var(--fog);
+    opacity: 0.65;
+  }
+  .pending-date {
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--dirt);
+    opacity: 0.55;
+    flex-shrink: 0;
+  }
+  .pending-empty {
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    color: var(--fog);
+    opacity: 0.4;
+    text-align: center;
+    padding: 0.5rem 0;
+  }
+  .btn-approve {
+    background: rgba(196, 163, 90, 0.12);
+    color: var(--dirt);
+    border: 1px solid rgba(196, 163, 90, 0.3);
+    flex-shrink: 0;
+  }
+  .btn-approve:hover:not(:disabled) {
+    background: rgba(196, 163, 90, 0.22);
+    color: var(--sand);
+  }
+  .btn-approve:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
   /* ── Phase filter ── */
+
   .filter-block {
     display: flex;
     align-items: center;
