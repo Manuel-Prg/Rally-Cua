@@ -8,13 +8,16 @@ export interface Props {
 const { title, activePage } = Astro.props;
 ---
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title} — Rally de Competencia</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png" />
+    <link rel="manifest" href="/favicon_io/site.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   </head>
@@ -22,29 +25,6 @@ const { title, activePage } = Astro.props;
     <!-- ── NAVBAR ── -->
     <header class="nav">
       <div class="nav-logo">Rally <span>ciclo del agua</span></div>
-
-      <nav class="nav-tabs" aria-label="Navegación principal">
-        <a
-          href="/admin"
-          class:list={["nav-tab", { active: activePage === "admin" }]}
-          aria-current={activePage === "admin" ? "page" : undefined}
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            style="margin-right:6px"
-          >
-            <circle cx="12" cy="12" r="3"></circle><path
-              d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"
-            ></path>
-          </svg>
-          Panel Admin
-        </a>
-      </nav>
 
       <div class="live-badge">
         <span class="live-dot" aria-hidden="true"></span>
@@ -203,9 +183,7 @@ const { title, activePage } = Astro.props;
         color: var(--fog);
         border-bottom: 3px solid transparent;
         margin-bottom: -3px;
-        transition:
-          color 0.2s,
-          background 0.2s;
+        transition: color 0.2s, background 0.2s;
       }
       .nav-tab:hover {
         color: var(--sand);

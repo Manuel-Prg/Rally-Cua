@@ -138,7 +138,7 @@ export default function RegistrationForm() {
           }
           .success-icon { font-size: 3.5rem; margin-bottom: 1rem; }
           .success-title {
-            font-family: 'Bebas Neue', sans-serif;
+            font-family: var(--font-archer);
             font-size: 2.2rem;
             letter-spacing: 0.08em;
             color: var(--moss-light);
@@ -151,7 +151,7 @@ export default function RegistrationForm() {
             margin-bottom: 1.4rem;
           }
           .success-sub {
-            font-family: 'Barlow Condensed', sans-serif;
+            font-family: var(--font-archer);
             font-size: 0.9rem;
             letter-spacing: 0.08em;
             color: var(--dirt);
@@ -243,7 +243,7 @@ export default function RegistrationForm() {
           gap: 0.4rem;
         }
         .field-label {
-          font-family: 'Barlow Condensed', sans-serif;
+          font-family: var(--font-archer);
           font-size: 0.85rem;
           font-weight: 700;
           letter-spacing: 0.12em;
@@ -257,7 +257,7 @@ export default function RegistrationForm() {
           border-radius: 8px;
           padding: 0.7rem 1rem;
           color: var(--ash);
-          font-family: 'Barlow', sans-serif;
+          font-family: var(--font-archer);
           font-size: 0.95rem;
           transition: border-color 0.2s, box-shadow 0.2s;
           outline: none;
@@ -273,11 +273,11 @@ export default function RegistrationForm() {
           border-color: var(--rust);
           box-shadow: 0 0 0 3px rgba(184, 74, 30, 0.15);
         }
-        .field-textarea { font-family: 'Barlow', sans-serif; }
+        .field-textarea { font-family: var(--font-archer); }
         .error-msg {
           font-size: 0.78rem;
           color: #e07b5f;
-          font-family: 'Barlow', sans-serif;
+          font-family: var(--font-archer);
         }
         .server-error {
           background: rgba(184, 74, 30, 0.12);
@@ -292,7 +292,7 @@ export default function RegistrationForm() {
           padding: 0.9rem 2rem;
           background: linear-gradient(135deg, var(--dirt-dark), var(--dirt));
           color: var(--ink);
-          font-family: 'Bebas Neue', sans-serif;
+          font-family: var(--font-archer);
           font-size: 1.15rem;
           letter-spacing: 0.12em;
           border: none;

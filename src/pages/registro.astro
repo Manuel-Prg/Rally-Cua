@@ -9,13 +9,10 @@ import RegistrationForm from "../components/RegistrationForm";
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Inscripción — Rally del Ciclo del Agua</title>
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap"
-            rel="stylesheet"
-        />
+        <link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png" />
+        <link rel="manifest" href="/favicon_io/site.webmanifest" />
     </head>
     <body>
         <!-- ── HEADER (standalone, sin links al marcador) ── -->
@@ -86,19 +83,70 @@ import RegistrationForm from "../components/RegistrationForm";
 </html>
 
 <style is:global>
-    :root {
-        --dirt: #c4a35a;
-        --dirt-dark: #8b6914;
-        --earth: #3d2b1f;
-        --bark: #2a1e15;
-        --moss: #4a5c3a;
-        --moss-light: #6b7f55;
-        --rust: #b84a1e;
-        --sand: #e8d5a3;
-        --fog: #d4c9b0;
-        --ash: #f2ede0;
-        --ink: #1a1208;
-    }
+      @font-face {
+        font-family: "Archer";
+        src: url("/fonts/ArcherBookPro.otf") format("opentype");
+        font-weight: 400;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Archer";
+        src: url("/fonts/ArcherMediumPro.otf") format("opentype");
+        font-weight: 500;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Archer";
+        src: url("/fonts/ArcherSemiboldPro.otf") format("opentype");
+        font-weight: 600;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Archer";
+        src: url("/fonts/ArcherBoldPro.otf") format("opentype");
+        font-weight: 700;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Archer";
+        src: url("/fonts/ArcherLightPro.otf") format("opentype");
+        font-weight: 300;
+        font-style: normal;
+      }
+
+      :root {
+        /* Paleta Acuática / Deep Ocean Theme */
+        --color-oceano-profundo: #061a28; /* bg principal muy oscuro */
+        --color-mar-nocturno: #0e2e46; /* bg de tarjetas, header */
+        --color-azul-brillante: #00e5ff; /* acentos brillantes, texto activo */
+        --color-cian: #00a3cc; /* botones, bordes, estados "doing" */
+        --color-agua-claro: #e0f7fa; /* textos principales, alto contraste */
+        --color-coral: #ff6b6b; /* tonos de alerta, highlights, isotipo */
+        --color-corriente: #005f8c; /* grises/azules intermedios */
+
+        /* Gradients / Variantes */
+        --color-grad-ocean-1: #0a3d62;
+        --color-grad-ocean-2: #05243b;
+        --color-grad-coral-1: #ff8787;
+        --color-grad-coral-2: #fa5252;
+        --color-grad-cyan: #22b8cf;
+
+        /* Fonts */
+        --font-archer: "Archer", serif;
+
+        /* Mapeo de Colores a la Paleta Acuática */
+        --dirt: var(--color-azul-brillante); /* Color principal llamativo */
+        --dirt-dark: var(--color-cian);
+        --earth: var(--color-mar-nocturno); /* Fondos de contenedores/header */
+        --bark: var(--color-oceano-profundo); /* Fondo principal de la página */
+        --moss: var(--color-cian); /* Botones secundarios o completados */
+        --moss-light: var(--color-grad-cyan);
+        --rust: var(--color-coral); /* Isotipo / acento secundario vibrante */
+        --sand: var(--color-agua-claro); /* Títulos, textos muy claros */
+        --fog: #b2dfdb; /* Texto secundario, descriptivo */
+        --ash: #ffffff; /* Texto general */
+        --ink: #000000; /* Texto oscuro sobre botones claros */
+      }
 
     *,
     *::before,
@@ -109,7 +157,7 @@ import RegistrationForm from "../components/RegistrationForm";
     }
 
     body {
-        font-family: "Barlow", sans-serif;
+        font-family: var(--font-archer);
         background: var(--bark);
         color: var(--ash);
         min-height: 100vh;
@@ -147,7 +195,7 @@ import RegistrationForm from "../components/RegistrationForm";
         gap: 1rem;
     }
     .nav-logo {
-        font-family: "Bebas Neue", sans-serif;
+        font-family: var(--font-archer);
         font-size: 1.8rem;
         letter-spacing: 0.1em;
         color: var(--dirt);
@@ -163,7 +211,7 @@ import RegistrationForm from "../components/RegistrationForm";
         height: 100%;
     }
     .nav-tab {
-        font-family: "Barlow Condensed", sans-serif;
+        font-family: var(--font-archer);
         font-size: 0.85rem;
         font-weight: 700;
         letter-spacing: 0.15em;
@@ -193,7 +241,7 @@ import RegistrationForm from "../components/RegistrationForm";
         display: flex;
         align-items: center;
         gap: 0.4rem;
-        font-family: "Barlow Condensed", sans-serif;
+        font-family: var(--font-archer);
         font-size: 0.72rem;
         font-weight: 700;
         letter-spacing: 0.12em;
@@ -239,7 +287,7 @@ import RegistrationForm from "../components/RegistrationForm";
         z-index: 1;
     }
     .event-eyebrow {
-        font-family: "Barlow Condensed", sans-serif;
+        font-family: var(--font-archer);
         font-size: 0.78rem;
         font-weight: 600;
         letter-spacing: 0.35em;
@@ -248,7 +296,7 @@ import RegistrationForm from "../components/RegistrationForm";
         margin-bottom: 0.8rem;
     }
     .event-title {
-        font-family: "Bebas Neue", sans-serif;
+        font-family: var(--font-archer);
         font-size: clamp(2.8rem, 9vw, 5.5rem);
         letter-spacing: 0.06em;
         line-height: 0.92;
@@ -288,7 +336,7 @@ import RegistrationForm from "../components/RegistrationForm";
         border: 1.5px solid rgba(196, 163, 90, 0.3);
         border-radius: 100px;
         padding: 0.45rem 1.2rem;
-        font-family: "Barlow Condensed", sans-serif;
+        font-family: var(--font-archer);
         font-size: 0.9rem;
         letter-spacing: 0.08em;
         color: var(--sand);
@@ -358,7 +406,7 @@ import RegistrationForm from "../components/RegistrationForm";
         margin-bottom: 2rem;
     }
     .form-title {
-        font-family: "Bebas Neue", sans-serif;
+        font-family: var(--font-archer);
         font-size: 2rem;
         letter-spacing: 0.08em;
         color: var(--dirt);
