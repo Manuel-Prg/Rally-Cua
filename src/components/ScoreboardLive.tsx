@@ -87,28 +87,40 @@ function TeamCard({ team, rank }: { team: Team; rank: number }) {
       style={{ "--team-color": team.color } as React.CSSProperties}
       aria-label={`${team.name}, posición ${rank}, ${score} puntos`}
     >
-      <div className="rank">{isFirst ? "🏆" : rank}</div>
-
-      <div className="info">
-        <div className="team-name">{team.name}</div>
-        <div className="members">{team.members.join(" · ")}</div>
+      <div className="rank-wrapper">
+        <div className="rank">{isFirst ? "🏆" : rank}</div>
       </div>
 
-      <div className="phase-block">
-        <span className={`phase-tag ${cp.phaseClass}`}>{cp.label}</span>
-        <div className="phase-dots">
-          {team.phases.map((p) => (
-            <span
-              key={p.phaseId}
-              className={`dot${p.status === "done" ? " done" : p.status === "doing" ? " active" : ""}`}
-            />
-          ))}
+      <div className="card-content">
+        <div className="info">
+          <div className="team-name">{team.name}</div>
+          <div className="members-list">
+             {team.members.map((member, i) => (
+               <span key={i} className="member-name">
+                 {member}{i < team.members.length - 1 && <span className="separator">·</span>}
+               </span>
+             ))}
+          </div>
         </div>
-      </div>
 
-      <div className="score-block">
-        <span className="score-value">{score}</span>
-        <span className="score-label">pts</span>
+        <div className="stats-row">
+          <div className="phase-block">
+            <span className={`phase-tag ${cp.phaseClass}`}>{cp.label}</span>
+            <div className="phase-dots">
+              {team.phases.map((p) => (
+                <span
+                  key={p.phaseId}
+                  className={`dot${p.status === "done" ? " done" : p.status === "doing" ? " active" : ""}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="score-block">
+            <span className="score-value">{score}</span>
+            <span className="score-label">pts</span>
+          </div>
+        </div>
       </div>
     </article>
   );
@@ -255,27 +267,27 @@ export default function ScoreboardLive({ initialTeams }: Props) {
         .hero { text-align: center; margin-bottom: 2.5rem; }
         .hero-eyebrow {
           font-family: var(--font-archer);
-          font-size: 0.8rem; font-weight: 600;
-          letter-spacing: 0.35em; text-transform: uppercase;
+          font-size: 0.75rem; font-weight: 600;
+          letter-spacing: 0.3em; text-transform: uppercase;
           color: var(--dirt); margin-bottom: 0.6rem;
         }
         .hero-title {
           font-family: var(--font-archer);
-          font-size: clamp(3.5rem, 10vw, 7.5rem);
-          letter-spacing: 0.06em; line-height: 0.9;
+          font-size: clamp(2.5rem, 8vw, 6rem);
+          letter-spacing: 0.04em; line-height: 0.95;
           color: var(--sand);
-          text-shadow: 3px 3px 0 var(--dirt-dark), 6px 6px 0 rgba(0,0,0,0.25);
+          text-shadow: 2px 2px 0 var(--dirt-dark), 4px 4px 0 rgba(0,0,0,0.2);
         }
         .hero-title em { font-style: normal; color: var(--rust); }
         .hero-divider {
-          width: 100px; height: 3px;
+          width: 80px; height: 2px;
           background: linear-gradient(90deg, transparent, var(--dirt), transparent);
-          margin: 1rem auto 0.6rem;
+          margin: 1.2rem auto 0.8rem;
         }
         .hero-update {
           font-family: var(--font-archer);
-          font-size: 0.72rem; font-weight: 600;
-          letter-spacing: 0.12em; text-transform: uppercase;
+          font-size: 0.7rem; font-weight: 600;
+          letter-spacing: 0.1em; text-transform: uppercase;
           color: rgba(196,163,90,0.45);
           display: flex; align-items: center; justify-content: center; gap: 0.6rem;
         }
@@ -289,13 +301,13 @@ export default function ScoreboardLive({ initialTeams }: Props) {
         /* ── Phase pills ── */
         .phase-pills {
           display: flex; justify-content: center;
-          gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2.5rem;
+          gap: 0.4rem; flex-wrap: wrap; margin-bottom: 2.5rem;
         }
         .phase-pill {
           font-family: var(--font-archer);
-          font-size: 0.72rem; font-weight: 700;
-          letter-spacing: 0.1em; text-transform: uppercase;
-          padding: 0.3rem 0.9rem; border-radius: 2px; border: 1px solid;
+          font-size: 0.65rem; font-weight: 700;
+          letter-spacing: 0.08em; text-transform: uppercase;
+          padding: 0.25rem 0.75rem; border-radius: 2px; border: 1px solid;
         }
         .phase-pill.completed { background: rgba(74,92,58,0.3); border-color: var(--moss-light); color: var(--moss-light); }
         .phase-pill.active    { background: rgba(196,163,90,0.18); border-color: var(--dirt); color: var(--dirt); animation: glow 2s ease-in-out infinite; }
@@ -303,68 +315,216 @@ export default function ScoreboardLive({ initialTeams }: Props) {
         @keyframes glow { 0%,100%{box-shadow:0 0 0 rgba(196,163,90,0)} 50%{box-shadow:0 0 14px rgba(196,163,90,0.4)} }
 
         /* ── Ranking ── */
-        .ranking-list { list-style:none; display:flex; flex-direction:column; gap:0.65rem; }
+        .ranking-list { list-style:none; display:flex; flex-direction:column; gap:0.75rem; }
         .ranking-list li { animation: slide-in 0.45s ease both; }
 
         /* ── Team card ── */
         .team-card {
-          display: grid; grid-template-columns: 56px 1fr auto auto;
-          align-items: center; gap: 1rem; padding: 1.1rem 1.5rem;
-          background: rgba(61,43,31,0.55); border: 1px solid rgba(196,163,90,0.12);
-          border-left: 4px solid var(--team-color);
-          backdrop-filter: blur(4px); position: relative; overflow: hidden;
+          display: flex;
+          align-items: stretch;
+          background: rgba(40, 30, 20, 0.4);
+          border: 1px solid rgba(196, 163, 90, 0.1);
+          border-left: 5px solid var(--team-color);
+          backdrop-filter: blur(12px);
+          position: relative;
+          overflow: hidden;
+          transition: transform 0.3s ease, background 0.3s ease;
+          border-radius: 4px;
         }
+        .team-card:hover {
+          transform: translateY(-2px);
+          background: rgba(60, 45, 35, 0.5);
+          border-color: rgba(196, 163, 90, 0.25);
+        }
+
         .team-card::before {
-          content:''; position:absolute; inset:0;
-          background: linear-gradient(90deg,rgba(255,255,255,0.025) 0%,transparent 60%);
-          pointer-events:none;
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+          pointer-events: none;
         }
-        .team-card--first { background: rgba(139,105,20,0.18); border-color: rgba(196,163,90,0.35); border-left-color: var(--team-color); }
-        @keyframes slide-in { from{opacity:0;transform:translateX(-18px)} to{opacity:1;transform:translateX(0)} }
 
-        .rank { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:rgba(196,163,90,0.28); text-align:center; line-height:1; }
-        .team-card--first .rank { font-size:2rem; color:var(--dirt); }
+        .team-card--first {
+          background: rgba(139, 105, 20, 0.12);
+          border-color: rgba(196, 163, 90, 0.3);
+          box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
 
-        .team-name { font-family:'Barlow Condensed',sans-serif; font-size:1.3rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--ash); }
-        .members { font-size:0.75rem; color:var(--fog); opacity:0.55; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .rank-wrapper {
+          width: 60px;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(0,0,0,0.2);
+          border-right: 1px solid rgba(196,163,90,0.05);
+        }
 
-        .phase-block { text-align:right; }
-        .phase-tag { font-family:'Barlow Condensed',sans-serif; font-size:0.65rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:0.18rem 0.55rem; border-radius:2px; display:inline-block; margin-bottom:0.35rem; border:1px solid; }
+        .rank {
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: 2rem;
+          color: rgba(196, 163, 90, 0.4);
+          line-height: 1;
+        }
+        .team-card--first .rank {
+          font-size: 1.8rem;
+          color: var(--dirt);
+          filter: drop-shadow(0 0 8px rgba(196,163,90,0.3));
+        }
+
+        .card-content {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          padding: 0.85rem 1.25rem;
+          gap: 0.6rem;
+        }
+
+        .info {
+          display: flex;
+          flex-direction: column;
+          gap: 0.2rem;
+        }
+
+        .team-name {
+          font-family: 'Barlow Condensed', sans-serif;
+          font-size: 1.4rem;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          text-transform: uppercase;
+          color: var(--ash);
+          line-height: 1.1;
+        }
+
+        .members-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0 0.35rem;
+          font-size: 0.75rem;
+          color: var(--fog);
+          opacity: 0.65;
+        }
+        .member-name { white-space: nowrap; }
+        .separator { margin-left: 0.35rem; opacity: 0.3; }
+
+        .stats-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-top: auto;
+          gap: 0.8rem;
+        }
+
+        .phase-block {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+        }
+
+        .phase-tag {
+          font-family: 'Barlow Condensed', sans-serif;
+          font-size: 0.65rem;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          padding: 0.15rem 0.5rem;
+          border-radius: 2px;
+          border: 1px solid;
+          white-space: nowrap;
+        }
         .phase-tag.doing   { background:rgba(196,163,90,0.15); color:var(--dirt); border-color:var(--dirt); }
         .phase-tag.done    { background:rgba(74,92,58,0.25);   color:var(--moss-light); border-color:var(--moss-light); }
-        .phase-tag.waiting { background:rgba(255,255,255,0.04); color:var(--fog); opacity:0.45; border-color:rgba(255,255,255,0.1); }
+        .phase-tag.waiting { background:rgba(255,255,255,0.04); color:var(--fog); border-color:rgba(255,255,255,0.1); }
 
-        .phase-dots { display:flex; gap:4px; justify-content:flex-end; }
-        .dot { width:10px; height:10px; border-radius:1px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); }
-        .dot.done   { background:var(--moss); border-color:var(--moss-light); }
-        .dot.active { background:var(--dirt); border-color:var(--dirt); box-shadow:0 0 6px var(--dirt); animation:dot-pulse 1.5s infinite; }
-        @keyframes dot-pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+        .phase-dots { display:flex; gap:4px; }
+        .dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 1px;
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.1);
+          transition: all 0.3s ease;
+        }
+        .dot.done   { background:var(--moss); border-color:var(--moss-light); box-shadow: 0 0 4px var(--moss); }
+        .dot.active { background:var(--dirt); border-color:var(--dirt); box-shadow:0 0 10px var(--dirt); animation:dot-pulse 1.5s infinite; }
 
-        .score-block { text-align:right; }
-        .score-value { display:block; font-family:'Bebas Neue',sans-serif; font-size:2.6rem; color:var(--sand); line-height:1; }
-        .team-card--first .score-value { font-size:3.2rem; color:var(--dirt); }
-        .score-label { font-family:'Barlow Condensed',sans-serif; font-size:0.62rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:rgba(196,163,90,0.35); }
+        .score-block {
+          display: flex;
+          align-items: baseline;
+          gap: 0.2rem;
+        }
+        .score-value {
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: 2.4rem;
+          color: var(--sand);
+          line-height: 0.8;
+        }
+        .team-card--first .score-value {
+          font-size: 2.8rem;
+          color: var(--dirt);
+          text-shadow: 0 0 12px rgba(196,163,90,0.2);
+        }
+        .score-label {
+          font-family: 'Barlow Condensed', sans-serif;
+          font-size: 0.7rem;
+          font-weight: 700;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: rgba(196,163,90,0.5);
+        }
+
+        @keyframes slide-in { from{opacity:0;transform:translateX(-18px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes dot-pulse { 0%,100%{opacity:1; transform: scale(1);} 50%{opacity:0.6; transform: scale(1.1);} }
 
         /* ── Progress bars ── */
         .progress-section { margin-top:3rem; }
-        .section-label { font-family:'Barlow Condensed',sans-serif; font-size:0.75rem; font-weight:700; letter-spacing:0.3em; text-transform:uppercase; color:var(--dirt); display:flex; align-items:center; gap:0.8rem; margin-bottom:1rem; }
+        .section-label { font-family:'Barlow Condensed',sans-serif; font-size: 0.7rem; font-weight:700; letter-spacing:0.25em; text-transform:uppercase; color:var(--dirt); display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem; }
         .section-line { flex:1; height:1px; background:linear-gradient(90deg,rgba(196,163,90,0.3),transparent); }
-        .bars { display:flex; flex-direction:column; gap:0.55rem; }
-        .bar-row { display:grid; grid-template-columns:150px 1fr 60px; align-items:center; gap:1rem; }
-        .bar-name { font-family:'Barlow Condensed',sans-serif; font-size:0.88rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .bar-track { height:14px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.07); border-radius:2px; overflow:hidden; }
-        .bar-fill { height:100%; background:linear-gradient(90deg,var(--fill-a),var(--fill-b)); border-radius:1px; position:relative; transition:width 0.9s cubic-bezier(0.4,0,0.2,1); }
-        .bar-pct { font-family:'Barlow Condensed',sans-serif; font-size:0.8rem; font-weight:600; color:var(--fog); opacity:0.55; text-align:right; }
-
-        /* ── Empty ── */
-        .empty-msg { text-align:center; color:var(--fog); opacity:0.5; padding:3rem 0; font-family:'Barlow Condensed',sans-serif; letter-spacing:0.1em; }
+        .bars { display:flex; flex-direction:column; gap:0.6rem; }
+        .bar-row { display:grid; grid-template-columns:120px 1fr 45px; align-items:center; gap:0.8rem; }
+        .bar-name { font-family:'Barlow Condensed',sans-serif; font-size:0.8rem; font-weight:700; letter-spacing:0.02em; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; opacity: 0.7; }
+        .bar-track { height:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.05); border-radius:2px; overflow:hidden; }
+        .bar-fill { height:100%; background:linear-gradient(90deg,var(--fill-a),var(--fill-b)); position:relative; transition:width 1s cubic-bezier(0.4,0,0.2,1); }
+        .bar-pct { font-family:'Barlow Condensed',sans-serif; font-size:0.75rem; font-weight:700; color:var(--fog); opacity:0.5; text-align:right; }
 
         /* ── Responsive ── */
-        @media(max-width:600px){
-          .team-card { grid-template-columns:40px 1fr auto; }
-          .phase-block { display:none; }
-          .score-value { font-size:2rem; }
-          .bar-row { grid-template-columns:100px 1fr 48px; }
+        @media(max-width:700px){
+          .scoreboard { padding: 1.25rem 0.75rem; }
+          .hero-eyebrow { font-size: 0.65rem; letter-spacing: 0.2em; }
+          .hero-title { font-size: clamp(2.2rem, 12vw, 4rem); text-shadow: 1.5px 1.5px 0 var(--dirt-dark), 3px 3px 0 rgba(0,0,0,0.2); }
+          .hero-update { font-size: 0.6rem; }
+
+          .rank-wrapper { width: 45px; }
+          .rank { font-size: 1.6rem; }
+          .team-card--first .rank { font-size: 1.4rem; }
+
+          .card-content { padding: 0.75rem 0.85rem; }
+          .team-name { font-size: 1.2rem; }
+          .members-list { font-size: 0.7rem; }
+          .score-value { font-size: 1.8rem; }
+          .team-card--first .score-value { font-size: 2rem; }
+        }
+
+        @media(max-width:480px){
+          .hero-title { font-size: 2.4rem; }
+          .team-card { flex-direction: column; border-left: none; border-top: 4px solid var(--team-color); }
+          .rank-wrapper {
+            width: 100%;
+            height: 36px;
+            border-right: none;
+            border-bottom: 1px solid rgba(196,163,90,0.05);
+            justify-content: flex-start;
+            padding-left: 0.85rem;
+          }
+          .rank { font-size: 1.35rem; }
+          .team-card--first .rank { font-size: 1.25rem; }
+
+          .stats-row { flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; }
+          .score-block { margin-left: auto; }
+
+          .bar-row { grid-template-columns: 80px 1fr 38px; gap: 0.4rem; }
+          .bar-name { font-size: 0.7rem; }
         }
       `}</style>
     </div>
