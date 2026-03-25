@@ -36,6 +36,7 @@ Este proyecto está optimizado para ser desplegado en plataformas como Vercel, N
 # Colaboradores:
 
 >[ManuelPrg](https://github.com/ManuelPrg)
+>[rob3rto-1](https://github.com/rob3rto-1)
 
 ## Configuración de la base de datos en supabase
 
